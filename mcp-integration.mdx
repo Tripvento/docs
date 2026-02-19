@@ -1,28 +1,41 @@
 ---
-title: "MCP integration"
-description: "Connect Tripvento to AI assistants via Model Context Protocol"
+title: "MCP Integration"
+description: "Connect to Tripvento's ranking engine directly from Claude, Cursor, or any MCP-compatible client"
 ---
 
-The Tripvento MCP server lets AI assistants query hotel rankings, compare properties, and surface recommendations through natural language. It wraps the Tripvento API so that LLM-based tools can call it directly.
+## Endpoint
 
-## Setup
-
-Install the Tripvento MCP server and configure it with your API key:
-
-```bash
-npm install -g @tripvento/mcp-server
+```
+https://mcp.tripvento.com/mcp
 ```
 
-Add the server to your MCP client configuration:
+The server uses the **Streamable HTTP** transport protocol and requires `Accept: text/event-stream` headers.
+
+## Quick setup
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "tripvento": {
-      "command": "tripvento-mcp",
-      "env": {
-        "TRIPVENTO_API_KEY": "YOUR_API_KEY"
-      }
+      "url": "https://mcp.tripvento.com/mcp"
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to your MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "tripvento": {
+      "url": "https://mcp.tripvento.com/mcp"
     }
   }
 }
@@ -32,70 +45,111 @@ Add the server to your MCP client configuration:
 
 ### `get_best_hotels`
 
-Returns top-ranked hotels for a destination and intent.
+Get top 5 ranked hotels for a specific city and travel intent.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
-| intent      | string | Yes      | Travel intent (e.g., `"romantic"`)                                                                   |
+| Parameter | Type   | Required | Description                                         |
+| --------- | ------ | -------- | --------------------------------------------------- |
+| city      | string | Yes      | City name (e.g., `"Miami"`)                         |
+| intent    | string | Yes      | Travel intent (e.g., `"romantic"`, `"business"`, `"family"`) |
+
+**Example prompt:** "Find the best romantic hotels in Miami"
 
 ### `get_top_hotels`
 
-Returns the highest-rated hotels in a destination regardless of intent.
+Get top rated hotels across all travel styles. Use when no specific intent is mentioned.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| Parameter | Type   | Required | Description                 |
+| --------- | ------ | -------- | --------------------------- |
+| city      | string | Yes      | City name                   |
+
+**Example prompt:** "What are the best hotels in Nashville?"
 
 ### `search_hybrid_needs`
 
-Searches hotels matching multiple intents with weighted preferences.
+Search hotels matching multiple intents with custom weights.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
-| intents     | array  | Yes      | List of intents with optional weights                                                                |
+| Parameter | Type   | Required | Description                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------- |
+| city      | string | Yes      | City name                                                            |
+| weights   | string | Yes      | JSON string with intent weights, e.g. `{"business": 0.6, "romantic": 0.4}` |
+
+**Example prompt:** "Find hotels in Austin that are 60% business, 40% romantic"
 
 ### `get_hotel_details`
 
-Returns detailed information about a specific hotel.
+Get detailed information about a specific hotel including scores across all intents.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
-| hotel_name  | string | Yes      | Hotel name                                                                                           |
+| Parameter  | Type   | Required | Description                           |
+| ---------- | ------ | -------- | ------------------------------------- |
+| city       | string | Yes      | City name                             |
+| hotel_name | string | Yes      | Hotel name (partial match supported)  |
+
+**Example prompt:** "Tell me more about the Faena Hotel in Miami"
 
 ### `compare_hotels`
 
-Compares two or more hotels side by side across all intents.
+Compare 2–3 hotels side by side for a specific intent.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
-| hotels      | array  | Yes      | List of hotel names to compare                                                                       |
+| Parameter   | Type   | Required | Description                        |
+| ----------- | ------ | -------- | ---------------------------------- |
+| city        | string | Yes      | City name                          |
+| hotel_names | string | Yes      | Comma-separated hotel names        |
+| intent      | string | Yes      | Travel intent to compare against   |
+
+**Example prompt:** "Compare the Ritz-Carlton and Four Seasons in Chicago for business travel"
 
 ### `get_best_value_hotels`
 
-Returns hotels with the best value scores for a destination.
+Find hotels with the best quality-to-price ratio for a given intent.
 
-| Parameter   | Type   | Required | Description                                                                                          |
-| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| Parameter | Type   | Required | Description    |
+| --------- | ------ | -------- | -------------- |
+| city      | string | Yes      | City name      |
+| intent    | string | Yes      | Travel intent  |
+
+**Example prompt:** "What are the best value family hotels in Orlando?"
 
 ### `get_available_cities`
 
-Returns all supported destinations and their slugs. Use this to discover valid `destination` values for other tools.
+List all cities currently available with hotel counts.
 
 No parameters required.
 
-## Example prompts
+**Example prompt:** "What cities does Tripvento cover?"
 
-These natural language prompts work with any MCP-compatible AI assistant:
+### `get_available_intents`
 
-- "Find the best romantic hotels in Miami"
-- "Compare the top 3 family hotels in Orlando"
-- "What are the best value hotels in New York for a solo trip?"
-- "Show me luxury hotels in Aspen with good wellness scores"
-- "Which hotels in Nashville are best for nightlife?"
+List all 14 travel intents with descriptions.
 
-The MCP server handles resolving natural language city names to destination slugs internally, so users can refer to destinations naturally in their prompts.
+No parameters required.
+
+**Example prompt:** "What travel styles can I search by?"
+
+## Rate limits
+
+The MCP server enforces its own rate limiting: **30 requests per 60-second window** per IP. If you hit the limit, wait and retry.
+
+## Response format
+
+All tools return formatted text with:
+
+- Hotel rankings with scores (0–100)
+- Score breakdowns (Semantic, Geo, Sentiment, Vibe)
+- Nearby POI highlights and detractors
+- Guest sentiment signals
+- AI-generated reasoning for each ranking
+- Price estimates and value indicators
+
+## Example conversation
+
+> **You:** Find the best romantic hotels in Miami
+>
+> **Claude:** Here are the top 5 romantic hotels in Miami based on Tripvento's ranking engine...
+>
+> **You:** Compare the top two for a honeymoon
+>
+> **Claude:** Here's a side-by-side comparison...
+>
+> **You:** What about the best value option?
+>
+> **Claude:** The best value romantic hotel in Miami is...

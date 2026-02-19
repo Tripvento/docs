@@ -1,78 +1,108 @@
 ---
 title: "Quickstart"
-description: "Get started with the Tripvento API in under five minutes"
+description: "Get your first API response in under 2 minutes"
 ---
 
-## Get started in four steps
+## Get up and running with the Tripvento API
 
-Grab your API key, make your first request, and explore hotel rankings by travel intent.
+### 1. Get your API key
 
-### Step 1 — Get your API key
+Head to [tripvento.com/pricing](https://tripvento.com/pricing) and pick a plan. Sandbox is free — no credit card required. Your key is delivered instantly on checkout.
 
-<AccordionGroup>
-  <Accordion icon="key" title="Create an account and get your key">
-    1. Sign up at [tripvento.com](https://tripvento.com).
-    2. Navigate to **Settings → API Keys** in your dashboard.
-    3. Click **Create Key** and copy the value — you won't see it again.
+### 2. Make your first request
 
-    <Tip>Store your key in an environment variable: `export TRIPVENTO_API_KEY="YOUR_API_KEY"`</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2 — Verify your key
+Replace `YOUR_API_KEY` with your actual key:
 
 ```bash
 curl -s "https://api.tripvento.com/api/v1/destinations/" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-You should see a JSON list of available destinations. If you get a `401`, double-check your key.
+You should see a list of available cities with hotel counts.
 
-### Step 3 — Get rankings for a destination
+### 3. Get rankings for a city
 
-Request the top-ranked hotels for a specific destination and travel intent:
+Fetch the top hotels for a specific travel intent:
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
+curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=romantic" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-The response returns hotels ranked by how well they match the selected intent for that destination.
+Each hotel comes with:
 
-### Step 4 — Get the full destination matrix
+- **Final score** — overall match rating (0–100)
+- **Geo score** — proximity to relevant POIs
+- **AI score** — semantic match to the travel intent
+- **Sentiment score** — guest review analysis
+- **Score components** — detailed breakdown including nearby POIs, guest signals, and AI reasoning
 
-See every intent score for a single destination at once:
+### 4. Get the full city matrix
+
+One request to get all hotels with all intent scores for a city:
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-The matrix gives you a complete picture of how all hotels in a destination perform across every intent.
+This returns every hotel in the city with scores across all 14 travel intents — perfect for building comparison UIs or powering search filters.
+
+### 5. Check your usage
+
+Monitor your quota anytime:
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/usage/" \
+  -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
+```
+
+Returns your tier, monthly limit, current usage, and reset date. This call does not count toward your quota.
+
+## Authentication
+
+Every request requires your API key in the `X-Api-Key` header:
+
+```
+X-Api-Key: tv_your_key_here
+```
+
+Requests without a valid key return `403 Forbidden`.
+
+## Rate limits
+
+Every response includes rate limit headers:
+
+```
+X-RateLimit-Limit: 5000
+X-RateLimit-Used: 42
+X-RateLimit-Remaining: 4958
+```
+
+If you exceed your monthly quota, you'll receive a `429 Too Many Requests` response with your usage stats and reset date.
 
 ## Caching
 
-All ranking data is cacheable for up to 24 hours. Rankings are recalculated monthly,
-so there's no benefit to fetching more frequently.
+All ranking data is cacheable for up to 24 hours. Rankings are recalculated daily, so there's no benefit to fetching more frequently. Cache aggressively — it's the best way to maximize your quota.
 
 ## Next steps
 
 <CardGroup cols={2}>
 
 <Card title="Endpoints" icon="plug" href="/api-reference/endpoints">
-  Explore every endpoint, parameter, and response field.
+  Full details on every endpoint, parameter, and response field.
 </Card>
 
 <Card title="Intents" icon="brain" href="/intents">
-  Browse the full list of travel intents you can query.
+  All 14 travel intents explained.
 </Card>
 
 <Card title="MCP integration" icon="robot" href="/mcp-integration">
   Connect Tripvento to AI assistants via Model Context Protocol.
 </Card>
 
-<Card title="Destinations" icon="map-pin" href="/api-reference/endpoints#get-destinations">
-  See all supported destinations and their slugs.
+<Card title="Support" icon="envelope" href="mailto:hello@tripvento.com">
+  Questions? Email hello@tripvento.com
 </Card>
 
 </CardGroup>

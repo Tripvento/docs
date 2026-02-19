@@ -3,128 +3,19 @@ title: "Endpoints"
 description: "Complete reference for every Tripvento API endpoint"
 ---
 
-All endpoints are prefixed with `https://api.tripvento.com/api/v1/` and require an `X-Api-Key` header.
+**Base URL:** `https://api.tripvento.com/api/v1`
 
----
-
-## GET /rankings/
-
-Returns ranked hotels for a destination and travel intent.
-
-### Parameters
-
-| Parameter   | Type   | Required | Description                                  |
-| ----------- | ------ | -------- | -------------------------------------------- |
-| destination | string | Yes      | Destination slug (e.g., `miami_fl`)          |
-| intent      | string | Yes      | Travel intent (see [Intents](/intents))       |
-
-### Example request
-
-```bash
-curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
-  -H "X-Api-Key: YOUR_API_KEY"
-```
-
-### Example response
-
-```json
-{
-  "destination": "miami_fl",
-  "intent": "romantic",
-  "results": [
-    {
-      "rank": 1,
-      "hotel_name": "Faena Miami Beach",
-      "score": 94.2
-    }
-  ],
-  "tier": "starter"
-}
-```
-
----
-
-## GET /city-matrix/
-
-Returns all intent scores for every hotel in a destination.
-
-### Parameters
-
-| Parameter   | Type   | Required | Description                          |
-| ----------- | ------ | -------- | ------------------------------------ |
-| destination | string | Yes      | Destination slug (e.g., `miami_fl`) |
-
-### Example request
-
-```bash
-curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
-  -H "X-Api-Key: YOUR_API_KEY"
-```
-
-### Example response
-
-```json
-{
-  "destination": "miami_fl",
-  "results": [
-    {
-      "hotel_name": "Faena Miami Beach",
-      "intents": {
-        "romantic": 94.2,
-        "family": 72.1,
-        "nightlife": 88.5
-      }
-    }
-  ],
-  "tier": "starter"
-}
-```
-
----
-
-## GET /hotels/
-
-Returns hotel details, optionally filtered by destination.
-
-### Parameters
-
-| Parameter   | Type   | Required | Description                                   |
-| ----------- | ------ | -------- | --------------------------------------------- |
-| destination | string | No       | Filter by destination slug (e.g., `miami_fl`) |
-
-### Example request
-
-```bash
-curl -s "https://api.tripvento.com/api/v1/hotels/?destination=miami_fl" \
-  -H "X-Api-Key: YOUR_API_KEY"
-```
-
-### Example response
-
-```json
-{
-  "count": 142,
-  "results": [
-    {
-      "hotel_name": "Faena Miami Beach",
-      "destination": "miami_fl",
-      "star_rating": 5,
-      "review_score": 9.1
-    }
-  ],
-  "tier": "starter"
-}
-```
+All endpoints require the `X-Api-Key` header.
 
 ---
 
 ## GET /destinations/
 
-Returns all supported destinations. Use this to discover valid destination slugs.
+List all available cities with hotel counts.
 
 ### Parameters
 
-No parameters required.
+None.
 
 ### Example request
 
@@ -141,7 +32,6 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
   "results": [
     {
       "name": "Miami",
-      "slug": "miami_fl",
       "label": "Miami, FL",
       "region": "Southeast",
       "hotel_count": 142
@@ -151,20 +41,28 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
 }
 ```
 
+### Notes
+
+- Sandbox and Demo tiers see 15 demo cities
+- All paid tiers see the full destination list
+
 ---
 
-## GET /intents/
+## GET /rankings/
 
-Returns all available travel intents.
+Get ranked hotels for a specific city and travel intent.
 
 ### Parameters
 
-No parameters required.
+| Parameter   | Type   | Required | Description                                   |
+| ----------- | ------ | -------- | --------------------------------------------- |
+| city        | string | Yes      | City name (e.g., `"Miami"`)                   |
+| intent_name | string | Yes      | Travel intent (see [Intents](/intents))        |
 
 ### Example request
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/intents/" \
+curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=romantic" \
   -H "X-Api-Key: YOUR_API_KEY"
 ```
 
@@ -172,14 +70,197 @@ curl -s "https://api.tripvento.com/api/v1/intents/" \
 
 ```json
 {
-  "count": 12,
+  "count": 142,
   "results": [
     {
-      "name": "romantic",
-      "label": "Romantic",
-      "description": "Hotels ideal for couples and romantic getaways"
+      "hotel": {
+        "id": 1234,
+        "name": "Faena Hotel Miami Beach",
+        "hotel_stars": "5-Star",
+        "neighborhood": "Mid-Beach",
+        "price_per_night": 450
+      },
+      "final_score": 88.5,
+      "geo_score": 91.2,
+      "ai_score": 85.3,
+      "sentiment_score": 89.1,
+      "neighborhood_vibe_score": 82.0,
+      "score_components_snapshot": {
+        "ai_analysis": {
+          "reasoning": "Oceanfront luxury with intimate atmosphere...",
+          "matched_amenities": ["spa", "fine dining", "ocean view"]
+        },
+        "top_drivers": [
+          {"signal": "Fine Dining", "presence": "High"}
+        ],
+        "top_detractors": [],
+        "sentiment_analysis": {
+          "positive_signals": ["romantic ambiance", "excellent service"],
+          "negative_signals": []
+        }
+      }
     }
   ],
-  "tier": "starter"
+  "tier": "starter",
+  "limited": false
 }
+```
+
+### Notes
+
+- Results are ordered by `final_score` descending
+- Sandbox/Demo tiers are limited to 15 results
+- Paid tiers receive the full ranked list
+- Data fields are obfuscated for non-internal tiers (presence labels instead of raw counts)
+
+---
+
+## GET /city-matrix/
+
+Get all hotels in a city with scores across every travel intent. One request replaces 14 individual ranking calls.
+
+### Parameters
+
+| Parameter | Type   | Required | Description                  |
+| --------- | ------ | -------- | ---------------------------- |
+| city      | string | Yes      | City name (e.g., `"Miami"`) |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "results": [
+    {
+      "name": "Faena Hotel Miami Beach",
+      "hotel_stars": "5-Star",
+      "neighborhood": "Mid-Beach",
+      "price_per_night": 450,
+      "intent_matrix": {
+        "romantic": {
+          "final_score": 88.5,
+          "geo_score": 91.2,
+          "ai_score": 85.3,
+          "sentiment_score": 89.1
+        },
+        "business_road_warrior": {
+          "final_score": 62.1,
+          "geo_score": 58.4,
+          "ai_score": 67.2,
+          "sentiment_score": 61.0
+        }
+      }
+    }
+  ],
+  "tier": "starter",
+  "limited": false
+}
+```
+
+### Notes
+
+- Best for building comparison pages, search filters, or pre-caching an entire city
+- One request returns all hotels × all intents
+- Sandbox/Demo tiers limited to 15 hotels
+
+<Note>This endpoint requires Startup tier or above. Starter and Sandbox tiers receive a 403 response.</Note>
+
+---
+
+## GET /hotels/
+
+List hotels with optional filtering.
+
+### Parameters
+
+| Parameter | Type   | Required | Description                    |
+| --------- | ------ | -------- | ------------------------------ |
+| city      | string | No       | Filter by city name            |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/hotels/?city=Miami" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Notes
+
+- Returns hotel metadata without ranking scores
+- Use `/rankings/` or `/city-matrix/` for scored results
+
+---
+
+## GET /usage/
+
+Check your current quota and usage. This call does not count toward your monthly limit.
+
+### Parameters
+
+None.
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/usage/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "tier": "starter",
+  "monthly_limit": 5000,
+  "monthly_used": 127,
+  "monthly_remaining": 4873,
+  "burst_limit_per_minute": 120,
+  "resets": "2026-03-01",
+  "unlimited": false
+}
+```
+
+---
+
+## Error responses
+
+All errors follow a consistent format:
+
+| Status | Meaning                                         |
+| ------ | ----------------------------------------------- |
+| 400    | Bad request — missing or invalid parameters     |
+| 403    | Forbidden — invalid or missing API key          |
+| 404    | Not found — city or resource doesn't exist      |
+| 429    | Rate limited — monthly or burst limit exceeded  |
+| 500    | Server error — try again or contact support     |
+
+### 429 response example
+
+```json
+{
+  "detail": "Monthly request limit exceeded.",
+  "monthly_limit": 5000,
+  "monthly_used": 5000,
+  "resets": "2026-03-01"
+}
+```
+
+---
+
+## Response headers
+
+Every response includes:
+
+```
+X-Response-Time-Ms: 45
+X-RateLimit-Limit: 5000
+X-RateLimit-Used: 128
+X-RateLimit-Remaining: 4872
+X-Cache-Status: HIT
 ```

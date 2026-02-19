@@ -1,58 +1,105 @@
 ---
 title: "Intents"
-description: "Travel intents used to rank hotels by trip purpose"
+description: "All 14 travel intents that power Tripvento hotel rankings"
 ---
 
-Tripvento ranks hotels based on **travel intents** — the reason behind a trip. Each intent captures a distinct set of preferences and priorities, so rankings shift depending on what matters most to the traveler.
+Tripvento ranks hotels against **14 distinct travel intents**. Each intent evaluates hotels using a proprietary combination of geospatial, semantic, and sentiment signals.
 
-## Available intents
+Pass these as the `intent_name` parameter to `/rankings/`.
 
-| Intent         | Description                                              |
-| -------------- | -------------------------------------------------------- |
-| `romantic`     | Hotels ideal for couples and romantic getaways           |
-| `family`       | Family-friendly properties with kids' amenities          |
-| `nightlife`    | Close to nightlife, bars, and late-night entertainment   |
-| `wellness`     | Spa, fitness, and wellness-focused stays                 |
-| `adventure`    | Base camps for outdoor and adventure activities          |
-| `luxury`       | Top-tier luxury hotels and resorts                       |
-| `budget`       | Best-value stays that don't sacrifice quality            |
-| `business`     | Business-ready hotels with workspaces and connectivity   |
-| `pet_friendly` | Hotels that welcome pets                                 |
-| `solo`         | Great picks for solo travelers                           |
-| `group`        | Properties suited for group trips and events             |
-| `foodie`       | Near top restaurants and culinary experiences             |
+## Family
 
-## Using intents with the API
+| Intent Name          | Description                                                                  |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `family_general`     | Family-friendly hotels with pools, activities, and kid-friendly dining       |
+| `family_with_toddlers` | Hotels suited for young children — cribs, safe environments, baby-friendly amenities |
 
-### Get rankings for a single intent
+## Business
 
-Pass the `intent` parameter to `/rankings/` along with a destination:
+| Intent Name            | Description                                                              |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `business_road_warrior` | Practical business travel — fast WiFi, convenient location, efficient check-in |
+| `business_executive`   | Premium business — meeting spaces, executive lounges, upscale dining     |
+
+## Romantic
+
+| Intent Name | Description                                                                 |
+| ----------- | --------------------------------------------------------------------------- |
+| `romantic`  | Couples, honeymoons, anniversaries — intimate settings, fine dining, scenic views |
+
+## Nightlife & Social
+
+| Intent Name  | Description                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| `party_type` | Nightlife-focused — bars, clubs, late-night dining                       |
+| `girls_trip` | Social atmosphere — spa, brunch spots, shopping, vibrant neighborhoods   |
+
+## Solo & Remote Work
+
+| Intent Name     | Description                                                          |
+| --------------- | -------------------------------------------------------------------- |
+| `solo_traveler` | Safe and social for solo travelers — walkable, well-reviewed         |
+| `remote_worker` | Digital nomad friendly — fast WiFi, quiet workspaces, cafes nearby   |
+
+## Food & Wellness
+
+| Intent Name        | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `foodie`           | Culinary-focused — near top restaurants, food markets, diverse dining |
+| `wellness_retreat` | Health and relaxation — spa, yoga, gyms, healthy dining         |
+
+## Budget & Luxury
+
+| Intent Name        | Description                                                          |
+| ------------------ | -------------------------------------------------------------------- |
+| `budget_backpacker` | Affordable stays in well-connected, walkable areas                  |
+| `luxury_shopper`   | High-end hotels near premium shopping, fine dining, luxury experiences |
+
+## Pet Friendly
+
+| Intent Name   | Description                                                        |
+| ------------- | ------------------------------------------------------------------ |
+| `pet_friendly` | Hotels welcoming pets — near parks, pet services, outdoor spaces  |
+
+---
+
+## Using intents in API calls
+
+### Single intent
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
+curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=romantic" \
   -H "X-Api-Key: YOUR_API_KEY"
 ```
 
-This returns hotels ranked by how well they match the `romantic` intent in Miami.
-
-### Get all intents for a destination
-
-Use the `/city-matrix/` endpoint to see how every hotel scores across all intents at once:
+### All intents at once (via city-matrix)
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
   -H "X-Api-Key: YOUR_API_KEY"
 ```
 
-The matrix response includes a score for every intent on each hotel, making it easy to compare across trip types.
+The city-matrix response includes scores for every intent, so you can sort and filter client-side without additional API calls.
 
-## How intents work
+---
 
-Each intent is powered by a composite scoring model that combines:
+## Intent mapping
 
-- **Review analysis** — sentiment and keyword extraction from guest reviews
-- **Amenity matching** — property features mapped to intent relevance
-- **Location signals** — proximity to relevant points of interest
-- **Guest feedback patterns** — recurring themes from verified stays
+Common user phrases and their matching intents for natural language interfaces:
 
-Scores range from 0 to 100. A higher score means the hotel is a stronger match for that intent.
+| User Says                  | Intent Name            |
+| -------------------------- | ---------------------- |
+| "family vacation"          | `family_general`       |
+| "traveling with toddlers"  | `family_with_toddlers` |
+| "business trip"            | `business_road_warrior` |
+| "executive travel"         | `business_executive`   |
+| "romantic getaway"         | `romantic`             |
+| "party weekend"            | `party_type`           |
+| "girls trip"               | `girls_trip`           |
+| "solo travel"              | `solo_traveler`        |
+| "remote work"              | `remote_worker`        |
+| "foodie trip"              | `foodie`               |
+| "spa retreat"              | `wellness_retreat`     |
+| "budget travel"            | `budget_backpacker`    |
+| "luxury shopping"          | `luxury_shopper`       |
+| "traveling with my dog"    | `pet_friendly`         |
