@@ -32,6 +32,7 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
   "results": [
     {
       "name": "Miami",
+      "slug": "miami_fl",
       "label": "Miami, FL",
       "region": "Southeast",
       "hotel_count": 142
@@ -43,6 +44,7 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
 
 ### Notes
 
+- Slugs follow the format `{city}_{state}` for US cities (e.g., `miami_fl`, `new_york_ny`) and `{city}_{country}` for international destinations (e.g., `paris_fr`)
 - Sandbox and Demo tiers see 15 demo cities
 - All paid tiers see the full destination list
 
@@ -263,4 +265,5 @@ X-RateLimit-Limit: 5000
 X-RateLimit-Used: 128
 X-RateLimit-Remaining: 4872
 X-Cache-Status: HIT
+Cache-Control: public, max-age=86400, stale-while-revalidate=3600
 ```

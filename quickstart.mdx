@@ -83,7 +83,7 @@ If you exceed your monthly quota, you'll receive a `429 Too Many Requests` respo
 
 ## Caching
 
-All ranking data is cacheable for up to 24 hours. Rankings are recalculated daily, so there's no benefit to fetching more frequently. Cache aggressively — it's the best way to maximize your quota.
+All ranking responses include a `Cache-Control: public, max-age=86400, stale-while-revalidate=3600` header. Rankings are recalculated daily, so there's no benefit to fetching more frequently. Cache aggressively — it's the best way to maximize your quota.
 
 ## Next steps
 
