@@ -1,0 +1,101 @@
+---
+title: "MCP integration"
+description: "Connect Tripvento to AI assistants via Model Context Protocol"
+---
+
+The Tripvento MCP server lets AI assistants query hotel rankings, compare properties, and surface recommendations through natural language. It wraps the Tripvento API so that LLM-based tools can call it directly.
+
+## Setup
+
+Install the Tripvento MCP server and configure it with your API key:
+
+```bash
+npm install -g @tripvento/mcp-server
+```
+
+Add the server to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "tripvento": {
+      "command": "tripvento-mcp",
+      "env": {
+        "TRIPVENTO_API_KEY": "YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+## Available tools
+
+### `get_best_hotels`
+
+Returns top-ranked hotels for a destination and intent.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| intent      | string | Yes      | Travel intent (e.g., `"romantic"`)                                                                   |
+
+### `get_top_hotels`
+
+Returns the highest-rated hotels in a destination regardless of intent.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+
+### `search_hybrid_needs`
+
+Searches hotels matching multiple intents with weighted preferences.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| intents     | array  | Yes      | List of intents with optional weights                                                                |
+
+### `get_hotel_details`
+
+Returns detailed information about a specific hotel.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| hotel_name  | string | Yes      | Hotel name                                                                                           |
+
+### `compare_hotels`
+
+Compares two or more hotels side by side across all intents.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+| hotels      | array  | Yes      | List of hotel names to compare                                                                       |
+
+### `get_best_value_hotels`
+
+Returns hotels with the best value scores for a destination.
+
+| Parameter   | Type   | Required | Description                                                                                          |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `"miami_fl"`). Use `get_available_cities` to see all valid slugs.            |
+
+### `get_available_cities`
+
+Returns all supported destinations and their slugs. Use this to discover valid `destination` values for other tools.
+
+No parameters required.
+
+## Example prompts
+
+These natural language prompts work with any MCP-compatible AI assistant:
+
+- "Find the best romantic hotels in Miami"
+- "Compare the top 3 family hotels in Orlando"
+- "What are the best value hotels in New York for a solo trip?"
+- "Show me luxury hotels in Aspen with good wellness scores"
+- "Which hotels in Nashville are best for nightlife?"
+
+The MCP server handles resolving natural language city names to destination slugs internally, so users can refer to destinations naturally in their prompts.

@@ -1,0 +1,185 @@
+---
+title: "Endpoints"
+description: "Complete reference for every Tripvento API endpoint"
+---
+
+All endpoints are prefixed with `https://api.tripvento.com/api/v1/` and require an `X-Api-Key` header.
+
+---
+
+## GET /rankings/
+
+Returns ranked hotels for a destination and travel intent.
+
+### Parameters
+
+| Parameter   | Type   | Required | Description                                  |
+| ----------- | ------ | -------- | -------------------------------------------- |
+| destination | string | Yes      | Destination slug (e.g., `miami_fl`)          |
+| intent      | string | Yes      | Travel intent (see [Intents](/intents))       |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "destination": "miami_fl",
+  "intent": "romantic",
+  "results": [
+    {
+      "rank": 1,
+      "hotel_name": "Faena Miami Beach",
+      "score": 94.2
+    }
+  ],
+  "tier": "starter"
+}
+```
+
+---
+
+## GET /city-matrix/
+
+Returns all intent scores for every hotel in a destination.
+
+### Parameters
+
+| Parameter   | Type   | Required | Description                          |
+| ----------- | ------ | -------- | ------------------------------------ |
+| destination | string | Yes      | Destination slug (e.g., `miami_fl`) |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "destination": "miami_fl",
+  "results": [
+    {
+      "hotel_name": "Faena Miami Beach",
+      "intents": {
+        "romantic": 94.2,
+        "family": 72.1,
+        "nightlife": 88.5
+      }
+    }
+  ],
+  "tier": "starter"
+}
+```
+
+---
+
+## GET /hotels/
+
+Returns hotel details, optionally filtered by destination.
+
+### Parameters
+
+| Parameter   | Type   | Required | Description                                   |
+| ----------- | ------ | -------- | --------------------------------------------- |
+| destination | string | No       | Filter by destination slug (e.g., `miami_fl`) |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/hotels/?destination=miami_fl" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "count": 142,
+  "results": [
+    {
+      "hotel_name": "Faena Miami Beach",
+      "destination": "miami_fl",
+      "star_rating": 5,
+      "review_score": 9.1
+    }
+  ],
+  "tier": "starter"
+}
+```
+
+---
+
+## GET /destinations/
+
+Returns all supported destinations. Use this to discover valid destination slugs.
+
+### Parameters
+
+No parameters required.
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/destinations/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "count": 15,
+  "results": [
+    {
+      "name": "Miami",
+      "slug": "miami_fl",
+      "label": "Miami, FL",
+      "region": "Southeast",
+      "hotel_count": 142
+    }
+  ],
+  "tier": "starter"
+}
+```
+
+---
+
+## GET /intents/
+
+Returns all available travel intents.
+
+### Parameters
+
+No parameters required.
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/intents/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response
+
+```json
+{
+  "count": 12,
+  "results": [
+    {
+      "name": "romantic",
+      "label": "Romantic",
+      "description": "Hotels ideal for couples and romantic getaways"
+    }
+  ],
+  "tier": "starter"
+}
+```
