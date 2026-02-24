@@ -18,7 +18,17 @@
             "pages": [
               "index",
               "quickstart",
-              "intents"
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "intents",
+              "thin-mode",
+              "caching",
+              "rate-limits",
+              "errors"
             ]
           },
           {
@@ -44,9 +54,24 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
+          "anchor": "Primary Docs",
           "href": "https://tripvento.com/docs",
           "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Tripvento",
+          "href": "https://tripvento.com",
+          "icon": "globe"
+        },
+        {
+          "anchor": "Pricing",
+          "href": "https://tripvento.com/pricing",
+          "icon": "credit-card"
+        },
+        {
+          "anchor": "About",
+          "href": "https://tripvento.com/about",
+          "icon": "circle-info"
         }
       ]
     }
@@ -58,20 +83,33 @@
   "navbar": {
     "links": [
       {
+        "label": "tripvento.com",
+        "href": "https://tripvento.com"
+      },
+      {
+        "label": "Pricing",
+        "href": "https://tripvento.com/pricing"
+      },
+      {
+        "label": "About",
+        "href": "https://tripvento.com/about"
+      },
+      {
         "label": "Support",
-        "href": "mailto:support@tripvento.com"
+        "href": "mailto:hello@tripvento.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://tripvento.com/dashboard"
+      "label": "Get API Key",
+      "href": "https://tripvento.com/pricing"
     }
   },
   "footer": {
     "socials": {
       "x": "https://x.com/tripvento",
-      "github": "https://github.com/tripvento"
+      "github": "https://github.com/tripvento",
+      "website": "https://tripvento.com"
     }
   }
 }

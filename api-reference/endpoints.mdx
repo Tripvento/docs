@@ -3,9 +3,13 @@ title: "Endpoints"
 description: "Complete reference for every Tripvento API endpoint"
 ---
 
+<Info>
+  The canonical version of these docs is at [tripvento.com/docs](https://tripvento.com/docs). See also the [Interactive API Docs](https://api.tripvento.com/api/docs/).
+</Info>
+
 **Base URL:** `https://api.tripvento.com/api/v1`
 
-All endpoints require the `X-Api-Key` header.
+All endpoints require the `X-Api-Key` header. See [Authentication](/authentication).
 
 ---
 
@@ -28,13 +32,13 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
 
 ```json
 {
-  "count": 15,
+  "count": 212,
   "results": [
     {
       "name": "Miami",
+      "slug": "miami_fl",
       "label": "Miami, FL",
-      "region": "Southeast",
-      "hotel_count": 142
+      "hotel_count": "150+"
     }
   ],
   "tier": "starter"
@@ -43,26 +47,28 @@ curl -s "https://api.tripvento.com/api/v1/destinations/" \
 
 ### Notes
 
-- Sandbox and Demo tiers see 15 demo cities
-- All paid tiers see the full destination list
+- Sandbox and Demo tiers see 15 demo cities. All paid tiers see the full destination list.
+- Use the `slug` field as the `destination` parameter in other endpoints.
 
 ---
 
 ## GET /rankings/
 
-Get ranked hotels for a specific city and travel intent.
+Get ranked hotels for a specific city and travel intent, ordered by `final_score` descending.
 
 ### Parameters
 
-| Parameter   | Type   | Required | Description                                   |
-| ----------- | ------ | -------- | --------------------------------------------- |
-| city        | string | Yes      | City name (e.g., `"Miami"`)                   |
-| intent_name | string | Yes      | Travel intent (see [Intents](/intents))        |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `destination` | string | Yes | Destination slug (e.g. `miami_fl`, `aspen_co`). Preferred over `city`. |
+| `city` | string | No | City name (e.g. `Miami`). Deprecated — use `destination` instead. |
+| `intent` | string | Yes | Travel intent slug (see [Travel Intents](/intents)). |
+| `thin` | boolean | No | Strip hotel detail fields. Returns `id`, `name`, `location`, `detail_url` only alongside full scores. |
 
 ### Example request
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=romantic" \
+curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
   -H "X-Api-Key: YOUR_API_KEY"
 ```
 
@@ -73,62 +79,68 @@ curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=roman
   "count": 142,
   "results": [
     {
-      "hotel": {
-        "id": 1234,
-        "name": "Faena Hotel Miami Beach",
-        "hotel_stars": "5-Star",
-        "neighborhood": "Mid-Beach",
-        "price_per_night": 450
-      },
+      "intent_name": "romantic",
       "final_score": 88.5,
       "geo_score": 91.2,
       "ai_score": 85.3,
       "sentiment_score": 89.1,
       "neighborhood_vibe_score": 82.0,
+      "editorial_score": null,
+      "is_eligible": true,
       "score_components_snapshot": {
         "ai_analysis": {
           "reasoning": "Oceanfront luxury with intimate atmosphere...",
           "matched_amenities": ["spa", "fine dining", "ocean view"]
         },
         "top_drivers": [
-          {"signal": "Fine Dining", "presence": "High"}
+          { "signal": "Fine Dining", "presence": "High" }
         ],
-        "top_detractors": [],
         "sentiment_analysis": {
           "positive_signals": ["romantic ambiance", "excellent service"],
           "negative_signals": []
         }
+      },
+      "hotel": {
+        "id": 1234,
+        "name": "Faena Hotel Miami Beach",
+        "detail_url": "https://api.tripvento.com/api/v1/hotels/1234/",
+        "hotel_stars": "5-Star",
+        "neighborhood": "Mid-Beach",
+        "city": "Miami",
+        "state": "Florida",
+        "location": { "latitude": 25.8123, "longitude": -80.1234 },
+        "price_per_night": "$400-450",
+        "user_rating": 4.5,
+        "amenities": ["spa", "pool", "fine dining", "ocean view"],
+        "story": "Faena Miami Beach is where the art world meets the ocean...",
+        "image_url": "https://cdn.tripvento.com/images/1234/primary.jpg"
       }
     }
   ],
   "tier": "starter",
-  "limited": false
+  "limited": false,
+  "total_available": 142
 }
 ```
 
 ### Notes
 
-- Results are ordered by `final_score` descending
-- Sandbox/Demo tiers are limited to 15 results
-- Paid tiers receive the full ranked list
-- Data fields are obfuscated for non-internal tiers (presence labels instead of raw counts)
+- Sandbox/Demo tiers are limited to 15 results. Paid tiers receive the full ranked list.
+- Score fields are on a 0–100 scale.
+- Data fields (prices, ratings, review counts) are obfuscated for non-internal tiers.
 
 ---
 
-## GET /city-matrix/
+## GET /intents/{id}/
 
-Get all hotels in a city with scores across every travel intent. One request replaces 14 individual ranking calls.
+Full scoring detail for a single hotel/intent pair — the complete explanation behind a ranking.
 
-### Parameters
-
-| Parameter | Type   | Required | Description                  |
-| --------- | ------ | -------- | ---------------------------- |
-| city      | string | Yes      | City name (e.g., `"Miami"`) |
+Get the `id` from the `detail_url` in city-matrix's `intent_matrix` object, or from rankings results.
 
 ### Example request
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
+curl -s "https://api.tripvento.com/api/v1/intents/98123/" \
   -H "X-Api-Key: YOUR_API_KEY"
 ```
 
@@ -136,64 +148,124 @@ curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
 
 ```json
 {
-  "results": [
-    {
-      "name": "Faena Hotel Miami Beach",
-      "hotel_stars": "5-Star",
-      "neighborhood": "Mid-Beach",
-      "price_per_night": 450,
-      "intent_matrix": {
-        "romantic": {
-          "final_score": 88.5,
-          "geo_score": 91.2,
-          "ai_score": 85.3,
-          "sentiment_score": 89.1
-        },
-        "business_road_warrior": {
-          "final_score": 62.1,
-          "geo_score": 58.4,
-          "ai_score": 67.2,
-          "sentiment_score": 61.0
-        }
-      }
-    }
-  ],
-  "tier": "starter",
-  "limited": false
+  "id": 98123,
+  "intent_name": "romantic",
+  "final_score": 88.5,
+  "geo_score": 91.2,
+  "ai_score": 85.3,
+  "sentiment_score": 89.1,
+  "neighborhood_vibe_score": 82.0,
+  "editorial_score": null,
+  "score_components_snapshot": { "...full breakdown..." : "..." },
+  "hotel": {
+    "id": 1234,
+    "name": "Faena Hotel Miami Beach",
+    "detail_url": "https://api.tripvento.com/api/v1/hotels/1234/",
+    "hotel_stars": "5-Star",
+    "neighborhood": "Mid-Beach",
+    "city": "Miami",
+    "state": "Florida",
+    "location": { "latitude": 25.8123, "longitude": -80.1234 },
+    "price_per_night": "$400-450",
+    "user_rating": 4.5,
+    "amenities": ["spa", "pool", "fine dining", "ocean view"],
+    "story": "Faena Miami Beach is where the art world meets the ocean...",
+    "image_url": "https://cdn.tripvento.com/images/1234/primary.jpg"
+  }
 }
 ```
 
 ### Notes
 
-- Best for building comparison pages, search filters, or pre-caching an entire city
-- One request returns all hotels × all intents
-- Sandbox/Demo tiers limited to 15 hotels
-
-<Note>This endpoint requires Startup tier or above. Starter and Sandbox tiers receive a 403 response.</Note>
+- Always returns the full fat response regardless of `thin`. This is the drill-down endpoint — use it when a user clicks into a specific hotel/intent combination.
 
 ---
 
-## GET /hotels/
+## GET /city-matrix/
 
-List hotels with optional filtering.
+All hotels in a city with scores across every travel intent. One request replaces 14 individual ranking calls.
+
+<Note>Requires **Startup tier** or above. Starter and Sandbox tiers receive a 403 response.</Note>
 
 ### Parameters
 
-| Parameter | Type   | Required | Description                    |
-| --------- | ------ | -------- | ------------------------------ |
-| city      | string | No       | Filter by city name            |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `destination` | string | Yes | Destination slug (e.g. `miami_fl`). Preferred over `city`. |
+| `city` | string | No | City name. Deprecated — use `destination` instead. |
+| `thin` | boolean | No | Default `true`. Strip hotel detail fields, keep full intent matrix scores. Pass `false` to include full hotel details. |
 
 ### Example request
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/hotels/?city=Miami" \
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
   -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### Example response (default thin)
+
+```json
+{
+  "results": [
+    {
+      "id": 1234,
+      "name": "Faena Hotel Miami Beach",
+      "detail_url": "https://api.tripvento.com/api/v1/hotels/1234/",
+      "location": { "latitude": 25.8123, "longitude": -80.1234 },
+      "intent_matrix": {
+        "romantic": {
+          "id": 98123,
+          "detail_url": "https://api.tripvento.com/api/v1/intents/98123/",
+          "final_score": 88.5,
+          "geo_score": 91.2,
+          "ai_score": 85.3,
+          "sentiment_score": 89.1,
+          "vibe_score": 82.0,
+          "editorial_score": 0.0
+        },
+        "business_road_warrior": {
+          "id": 98124,
+          "detail_url": "https://api.tripvento.com/api/v1/intents/98124/",
+          "final_score": 62.1,
+          "geo_score": 58.4,
+          "ai_score": 67.2,
+          "sentiment_score": 61.0,
+          "vibe_score": 55.3,
+          "editorial_score": 0.0
+        }
+      }
+    }
+  ],
+  "tier": "startup",
+  "limited": false,
+  "total_available": 142
+}
 ```
 
 ### Notes
 
-- Returns hotel metadata without ranking scores
-- Use `/rankings/` or `/city-matrix/` for scored results
+- Best for building comparison pages, search filters, or pre-caching an entire city.
+- Use `detail_url` on each intent to fetch the full breakdown on demand.
+
+---
+
+## GET /hotels/{id}/
+
+Hotel metadata without ranking scores. Use `/rankings/` or `/city-matrix/` for scored results.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | No | Filter by city name. |
+| `destination` | string | No | Filter by destination slug. |
+
+### Example request
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/hotels/1234/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
 
 ---
 
@@ -230,37 +302,27 @@ curl -s "https://api.tripvento.com/api/v1/usage/" \
 
 ## Error responses
 
-All errors follow a consistent format:
+See [Errors](/errors) for the full reference.
 
-| Status | Meaning                                         |
-| ------ | ----------------------------------------------- |
-| 400    | Bad request — missing or invalid parameters     |
-| 403    | Forbidden — invalid or missing API key          |
-| 404    | Not found — city or resource doesn't exist      |
-| 429    | Rate limited — monthly or burst limit exceeded  |
-| 500    | Server error — try again or contact support     |
-
-### 429 response example
-
-```json
-{
-  "detail": "Monthly request limit exceeded.",
-  "monthly_limit": 5000,
-  "monthly_used": 5000,
-  "resets": "2026-03-01"
-}
-```
+| Status | Meaning |
+| ------ | ------- |
+| 400 | Bad request — missing or invalid parameters |
+| 403 | Forbidden — invalid or missing API key, or tier restriction |
+| 404 | Not found — city or resource does not exist |
+| 429 | Rate limited — monthly or burst limit exceeded |
+| 500 | Server error — try again or contact support |
 
 ---
 
 ## Response headers
 
-Every response includes:
+See [Caching](/caching) for the full reference.
 
-```
+```http
 X-Response-Time-Ms: 45
+X-Cache-Status: HIT
 X-RateLimit-Limit: 5000
 X-RateLimit-Used: 128
 X-RateLimit-Remaining: 4872
-X-Cache-Status: HIT
+Cache-Control: public, max-age=86400, stale-while-revalidate=3600
 ```

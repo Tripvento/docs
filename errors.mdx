@@ -1,0 +1,33 @@
+---
+title: "Errors"
+description: "Error codes and response format for the Tripvento API"
+---
+
+All errors follow a consistent format.
+
+## Error codes
+
+| Status | Meaning |
+| ------ | ------- |
+| **400** | Bad request — missing or invalid parameters |
+| **403** | Forbidden — invalid or missing API key, or tier restriction |
+| **404** | Not found — city or resource does not exist |
+| **429** | Rate limited — monthly or burst limit exceeded |
+| **500** | Server error — try again or contact support |
+
+## 429 response example
+
+```json
+{
+  "detail": "Monthly request limit exceeded.",
+  "monthly_limit": 5000,
+  "monthly_used": 5000,
+  "resets": "2026-03-01"
+}
+```
+
+## Getting help
+
+If you encounter persistent errors, contact [hello@tripvento.com](mailto:hello@tripvento.com) with the request URL, response body, and your tier.
+
+See [Rate Limits](/rate-limits) for details on monthly quotas and burst limits by tier.

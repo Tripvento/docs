@@ -3,106 +3,72 @@ title: "Quickstart"
 description: "Get your first API response in under 2 minutes"
 ---
 
+<Info>
+  The canonical version of these docs is at [tripvento.com/docs](https://tripvento.com/docs).
+</Info>
+
 ## Get up and running with the Tripvento API
 
 ### 1. Get your API key
 
-Head to [tripvento.com/pricing](https://tripvento.com/pricing) and pick a plan. Sandbox is free — no credit card required. Your key is delivered instantly on checkout.
+Head to [tripvento.com/pricing](https://tripvento.com/pricing) and pick a plan. Sandbox is free — no credit card required. Your key is delivered instantly.
 
-### 2. Make your first request
-
-Replace `YOUR_API_KEY` with your actual key:
+### 2. List available cities
 
 ```bash
 curl -s "https://api.tripvento.com/api/v1/destinations/" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-You should see a list of available cities with hotel counts.
+You should see a list of available cities with hotel counts. Use the `slug` field as the `destination` parameter in other endpoints.
 
 ### 3. Get rankings for a city
 
 Fetch the top hotels for a specific travel intent:
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/rankings/?city=Miami&intent_name=romantic" \
+curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-Each hotel comes with:
+Each result includes `final_score`, `geo_score`, `ai_score`, `sentiment_score`, and a full `score_components_snapshot` breakdown.
 
-- **Final score** — overall match rating (0–100)
-- **Geo score** — proximity to relevant POIs
-- **AI score** — semantic match to the travel intent
-- **Sentiment score** — guest review analysis
-- **Score components** — detailed breakdown including nearby POIs, guest signals, and AI reasoning
-
-### 4. Get the full city matrix
-
-One request to get all hotels with all intent scores for a city:
+### 4. Get all intent scores in one request
 
 ```bash
-curl -s "https://api.tripvento.com/api/v1/city-matrix/?city=Miami" \
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-This returns every hotel in the city with scores across all 14 travel intents — perfect for building comparison UIs or powering search filters.
+Returns every hotel x every intent in a single call. Perfect for building comparison UIs or pre-caching an entire city.
 
 ### 5. Check your usage
-
-Monitor your quota anytime:
 
 ```bash
 curl -s "https://api.tripvento.com/api/v1/usage/" \
   -H "X-Api-Key: YOUR_API_KEY" | python3 -m json.tool
 ```
 
-Returns your tier, monthly limit, current usage, and reset date. This call does not count toward your quota.
-
-## Authentication
-
-Every request requires your API key in the `X-Api-Key` header:
-
-```
-X-Api-Key: tv_your_key_here
-```
-
-Requests without a valid key return `403 Forbidden`.
-
-## Rate limits
-
-Every response includes rate limit headers:
-
-```
-X-RateLimit-Limit: 5000
-X-RateLimit-Used: 42
-X-RateLimit-Remaining: 4958
-```
-
-If you exceed your monthly quota, you'll receive a `429 Too Many Requests` response with your usage stats and reset date.
-
-## Caching
-
-All ranking data is cacheable for up to 24 hours. Rankings are recalculated daily, so there's no benefit to fetching more frequently. Cache aggressively — it's the best way to maximize your quota.
+This call does not count toward your monthly quota.
 
 ## Next steps
 
 <CardGroup cols={2}>
 
+<Card title="Authentication" icon="key" href="/authentication">
+  API key setup and security details.
+</Card>
+
 <Card title="Endpoints" icon="plug" href="/api-reference/endpoints">
   Full details on every endpoint, parameter, and response field.
 </Card>
 
-<Card title="Intents" icon="brain" href="/intents">
+<Card title="Travel Intents" icon="brain" href="/intents">
   All 14 travel intents explained.
 </Card>
 
-<Card title="MCP integration" icon="robot" href="/mcp-integration">
+<Card title="MCP Integration" icon="robot" href="/mcp-integration">
   Connect Tripvento to AI assistants via Model Context Protocol.
-</Card>
-
-<Card title="Support" icon="envelope" href="mailto:hello@tripvento.com">
-  Questions? Email hello@tripvento.com
 </Card>
 
 </CardGroup>

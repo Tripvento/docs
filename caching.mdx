@@ -1,0 +1,45 @@
+---
+title: "Caching"
+description: "Cache-Control headers, response headers, and best practices for the Tripvento API"
+---
+
+You may cache responses for up to 24 hours as per our [Terms of Service](https://tripvento.com/terms). Cache aggressively — it's the best way to maximize your quota.
+
+## Response headers
+
+Every response includes these headers:
+
+| Header | Description |
+| ------ | ----------- |
+| `X-Response-Time-Ms` | Server-side processing time in milliseconds |
+| `X-Cache-Status` | `HIT` if served from server cache, `MISS` if freshly computed |
+| `X-RateLimit-Limit` | Your monthly request limit |
+| `X-RateLimit-Used` | Requests used this month |
+| `X-RateLimit-Remaining` | Requests remaining this month |
+| `Cache-Control` | CDN/client caching directive — see per-endpoint rules below |
+
+### Example
+
+```http
+X-Response-Time-Ms: 45
+X-Cache-Status: HIT
+X-RateLimit-Limit: 5000
+X-RateLimit-Used: 128
+X-RateLimit-Remaining: 4872
+Cache-Control: public, max-age=86400, stale-while-revalidate=3600
+```
+
+## Cache-Control per endpoint
+
+| Endpoint | Cache-Control |
+| -------- | ------------- |
+| `/rankings/` | `public, max-age=86400, stale-while-revalidate=3600` |
+| `/city-matrix/` | `public, max-age=86400, stale-while-revalidate=3600` |
+| `/destinations/` | `public, max-age=86400, stale-while-revalidate=3600` |
+| `/usage/` | `private, no-cache` |
+
+## How it works
+
+- **`max-age=86400`** — safe to cache for 24 hours. Rankings are recalculated daily so there's no benefit to fetching more frequently.
+- **`stale-while-revalidate=3600`** — your CDN or client can serve stale content for up to 1 hour while revalidating in the background. Zero-latency updates for end users.
+- **`X-Cache-Status: HIT`** — indicates the response was served from the server-side cache (Redis). Combined with CDN caching in front of the API, HIT responses are typically sub-10ms.
