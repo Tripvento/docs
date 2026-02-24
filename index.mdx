@@ -1,11 +1,17 @@
 ---
 title: "Introduction"
-description: "AI-powered hotel rankings by travel intent"
+description: "AI-powered hotel rankings by travel intent — complete API reference, endpoints, authentication, rate limits, and MCP integration."
 ---
+
+<Info>
+  **Primary documentation** — The canonical version of these docs lives at [tripvento.com/docs](https://tripvento.com/docs). This Mintlify site is an exploration and may lag behind. When in doubt, refer to [tripvento.com/docs](https://tripvento.com/docs) as the source of truth.
+</Info>
 
 ## What is Tripvento?
 
-Tripvento ranks hotels based on **why** you're traveling — not just stars and reviews. Our API scores every hotel across travel intents like romantic, family, nightlife, wellness, and more, so you can surface the right property for every trip.
+[Tripvento](https://tripvento.com) ranks hotels based on **why** you're traveling — not just stars and reviews. Our API scores every hotel across 14 travel intents like romantic, family, nightlife, wellness, and more, so you can surface the right property for every trip.
+
+**Base URL:** `https://api.tripvento.com/api/v1`
 
 ## Get started
 
@@ -26,27 +32,50 @@ Tripvento ranks hotels based on **why** you're traveling — not just stars and 
     icon="plug"
     href="/api-reference/endpoints"
   >
-    Full reference for rankings, city matrix, hotels, and destinations.
+    Full reference for rankings, city matrix, hotels, intents detail, and destinations.
   </Card>
   <Card
-    title="Intents"
+    title="Travel Intents"
     icon="brain"
     href="/intents"
   >
-    Browse the travel intents that power hotel rankings.
+    Browse the 14 travel intents that power hotel rankings.
   </Card>
   <Card
-    title="MCP integration"
+    title="MCP Integration"
     icon="robot"
     href="/mcp-integration"
   >
-    Connect Tripvento to AI assistants via Model Context Protocol.
+    Connect Tripvento to Claude, Cursor, or any MCP-compatible client.
   </Card>
   <Card
-    title="Destinations"
-    icon="map-pin"
-    href="/api-reference/endpoints#get-destinations"
+    title="Authentication"
+    icon="key"
+    href="/authentication"
   >
-    See all 15 supported destinations and their slugs.
+    API key setup and security.
   </Card>
 </Columns>
+
+## Learn more
+
+<Columns cols={3}>
+  <Card title="Thin Mode" icon="compress" href="/thin-mode">
+    Smaller payloads for faster responses.
+  </Card>
+  <Card title="Caching" icon="database" href="/caching">
+    Cache-Control headers and best practices.
+  </Card>
+  <Card title="Rate Limits" icon="gauge" href="/rate-limits">
+    Monthly quotas and burst limits by tier.
+  </Card>
+</Columns>
+
+## Links
+
+- [Tripvento](https://tripvento.com) — Main website
+- [Pricing & API Keys](https://tripvento.com/pricing) — Get your API key (Sandbox is free)
+- [About Tripvento](https://tripvento.com/about) — Our story and mission
+- [Primary Docs](https://tripvento.com/docs) — Canonical documentation
+- [Interactive API Docs](https://api.tripvento.com/api/docs/) — Swagger/OpenAPI explorer
+- [hello@tripvento.com](mailto:hello@tripvento.com) — Questions and support

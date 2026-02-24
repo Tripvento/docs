@@ -3,13 +3,15 @@ title: "MCP Integration"
 description: "Connect to Tripvento's ranking engine directly from Claude, Cursor, or any MCP-compatible client"
 ---
 
+Connect to [Tripvento's](https://tripvento.com) ranking engine directly from Claude, Cursor, or any MCP-compatible client.
+
 ## Endpoint
 
 ```
 https://mcp.tripvento.com/mcp
 ```
 
-The server uses the **Streamable HTTP** transport protocol and requires `Accept: text/event-stream` headers.
+Uses Streamable HTTP transport. Requires `Accept: text/event-stream` headers.
 
 ## Quick setup
 
@@ -45,73 +47,73 @@ Add to your MCP settings:
 
 ### `get_best_hotels`
 
-Get top 5 ranked hotels for a specific city and travel intent.
+Top 5 ranked hotels for a city and intent.
 
-| Parameter | Type   | Required | Description                                         |
-| --------- | ------ | -------- | --------------------------------------------------- |
-| city      | string | Yes      | City name (e.g., `"Miami"`)                         |
-| intent    | string | Yes      | Travel intent (e.g., `"romantic"`, `"business"`, `"family"`) |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name (e.g., `"Miami"`) |
+| `intent` | string | Yes | Travel intent (e.g., `"romantic"`, `"business"`, `"family"`) |
 
 **Example prompt:** "Find the best romantic hotels in Miami"
 
 ### `get_top_hotels`
 
-Get top rated hotels across all travel styles. Use when no specific intent is mentioned.
+Top rated hotels across all travel styles.
 
-| Parameter | Type   | Required | Description                 |
-| --------- | ------ | -------- | --------------------------- |
-| city      | string | Yes      | City name                   |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name |
 
 **Example prompt:** "What are the best hotels in Nashville?"
 
 ### `search_hybrid_needs`
 
-Search hotels matching multiple intents with custom weights.
+Hotels matching multiple intents with custom weights.
 
-| Parameter | Type   | Required | Description                                                          |
-| --------- | ------ | -------- | -------------------------------------------------------------------- |
-| city      | string | Yes      | City name                                                            |
-| weights   | string | Yes      | JSON string with intent weights, e.g. `{"business": 0.6, "romantic": 0.4}` |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name |
+| `weights` | string | Yes | JSON string with intent weights, e.g. `{"business": 0.6, "romantic": 0.4}` |
 
-**Example prompt:** "Find hotels in Austin that are 60% business, 40% romantic"
+**Example prompt:** "60% business, 40% romantic in Austin"
 
 ### `get_hotel_details`
 
-Get detailed information about a specific hotel including scores across all intents.
+Detailed info for a specific hotel across all intents.
 
-| Parameter  | Type   | Required | Description                           |
-| ---------- | ------ | -------- | ------------------------------------- |
-| city       | string | Yes      | City name                             |
-| hotel_name | string | Yes      | Hotel name (partial match supported)  |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name |
+| `hotel_name` | string | Yes | Hotel name (partial match supported) |
 
-**Example prompt:** "Tell me more about the Faena Hotel in Miami"
+**Example prompt:** "Tell me about the Faena in Miami"
 
 ### `compare_hotels`
 
-Compare 2–3 hotels side by side for a specific intent.
+Side-by-side comparison of 2-3 hotels for an intent.
 
-| Parameter   | Type   | Required | Description                        |
-| ----------- | ------ | -------- | ---------------------------------- |
-| city        | string | Yes      | City name                          |
-| hotel_names | string | Yes      | Comma-separated hotel names        |
-| intent      | string | Yes      | Travel intent to compare against   |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name |
+| `hotel_names` | string | Yes | Comma-separated hotel names |
+| `intent` | string | Yes | Travel intent to compare against |
 
-**Example prompt:** "Compare the Ritz-Carlton and Four Seasons in Chicago for business travel"
+**Example prompt:** "Compare Ritz vs Four Seasons for business"
 
 ### `get_best_value_hotels`
 
-Find hotels with the best quality-to-price ratio for a given intent.
+Best quality-to-price ratio for a given intent.
 
-| Parameter | Type   | Required | Description    |
-| --------- | ------ | -------- | -------------- |
-| city      | string | Yes      | City name      |
-| intent    | string | Yes      | Travel intent  |
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `city` | string | Yes | City name |
+| `intent` | string | Yes | Travel intent |
 
-**Example prompt:** "What are the best value family hotels in Orlando?"
+**Example prompt:** "Best value family hotels in Orlando"
 
 ### `get_available_cities`
 
-List all cities currently available with hotel counts.
+All cities with hotel counts.
 
 No parameters required.
 
@@ -119,7 +121,7 @@ No parameters required.
 
 ### `get_available_intents`
 
-List all 14 travel intents with descriptions.
+All 14 travel intents with descriptions.
 
 No parameters required.
 
@@ -127,18 +129,7 @@ No parameters required.
 
 ## Rate limits
 
-The MCP server enforces its own rate limiting: **30 requests per 60-second window** per IP. If you hit the limit, wait and retry.
-
-## Response format
-
-All tools return formatted text with:
-
-- Hotel rankings with scores (0–100)
-- Score breakdowns (Semantic, Geo, Sentiment, Vibe)
-- Nearby POI highlights and detractors
-- Guest sentiment signals
-- AI-generated reasoning for each ranking
-- Price estimates and value indicators
+MCP rate limit: **30 requests per 60-second window** per IP. Responses include hotel rankings with scores, score breakdowns, nearby POIs, sentiment signals, and AI reasoning.
 
 ## Example conversation
 
@@ -153,3 +144,10 @@ All tools return formatted text with:
 > **You:** What about the best value option?
 >
 > **Claude:** The best value romantic hotel in Miami is...
+
+## Links
+
+- [Tripvento](https://tripvento.com) — Main website
+- [Get an API Key](https://tripvento.com/pricing) — Sandbox is free
+- [About Tripvento](https://tripvento.com/about) — Our story
+- [Primary Docs](https://tripvento.com/docs) — Canonical documentation

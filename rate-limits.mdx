@@ -1,0 +1,61 @@
+---
+title: "Rate Limits"
+description: "Monthly quotas and per-minute burst limits by tier"
+---
+
+Two limits apply: monthly quota and per-minute burst.
+
+## Tiers
+
+| Tier | Price | Monthly Limit | Burst / Min |
+| ---- | ----- | ------------- | ----------- |
+| **Sandbox** | Free | 150 / mo | 60 |
+| **Starter** | $49 / mo | 5,000 / mo | 120 |
+| **Startup** | $199 / mo | 25,000 / mo | 180 |
+| **Business** | $499 / mo | 75,000 / mo | 500 |
+
+Get your API key at [tripvento.com/pricing](https://tripvento.com/pricing). Sandbox is free — no credit card required.
+
+## Checking your usage
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/usage/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+```json
+{
+  "tier": "starter",
+  "monthly_limit": 5000,
+  "monthly_used": 127,
+  "monthly_remaining": 4873,
+  "burst_limit_per_minute": 120,
+  "resets": "2026-03-01",
+  "unlimited": false
+}
+```
+
+The `/usage/` endpoint does not count toward your monthly limit.
+
+## 429 response
+
+When you exceed your quota, the API returns:
+
+```json
+{
+  "detail": "Monthly request limit exceeded.",
+  "monthly_limit": 5000,
+  "monthly_used": 5000,
+  "resets": "2026-03-01"
+}
+```
+
+## Rate limit headers
+
+Every response includes rate limit headers so you can track usage client-side:
+
+```http
+X-RateLimit-Limit: 5000
+X-RateLimit-Used: 128
+X-RateLimit-Remaining: 4872
+```

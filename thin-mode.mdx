@@ -1,0 +1,40 @@
+---
+title: "Thin Mode"
+description: "Reduce payload sizes with thin mode for faster API responses"
+---
+
+Add `?thin=true` to `/rankings/` or `/city-matrix/` to get significantly smaller payloads. City-matrix is thin by default.
+
+## Payload comparison
+
+| Mode | Size | Includes |
+| ---- | ---- | -------- |
+| **Fat response** | ~466 KB | Full hotel details — story, amenities, nearby POIs, images, price, ratings |
+| **Thin response** | ~88 KB | Just `id`, `name`, `location`, `detail_url` alongside all scores |
+
+Thin responses include `detail_url` for every hotel and intent, so you can fetch full details on demand when a user selects a specific result.
+
+## Examples
+
+### Rankings — thin mode
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/rankings/?destination=miami_fl&intent=romantic&thin=true" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+### City matrix — thin by default, full opt-in
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/city-matrix/?destination=miami_fl&thin=false" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+## When to use thin mode
+
+- **List views** — show hotel names and scores, fetch details on click
+- **Mobile clients** — reduce bandwidth and parse time
+- **Pre-caching** — store scores for an entire city, load details lazily
+- **MCP/AI integrations** — keep context windows lean
+
+Use `detail_url` on each hotel or intent to drill down into the full response when needed.

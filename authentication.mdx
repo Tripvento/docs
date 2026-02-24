@@ -1,0 +1,27 @@
+---
+title: "Authentication"
+description: "API key authentication for the Tripvento API"
+---
+
+Every request requires your API key in the `X-Api-Key` header. Requests without a valid key return `403 Forbidden`.
+
+```http
+X-Api-Key: tv_your_key_here
+```
+
+## Getting your API key
+
+Head to [tripvento.com/pricing](https://tripvento.com/pricing) and pick a plan. Sandbox is free — no credit card required. Your key is delivered instantly.
+
+## Using the key
+
+Include the `X-Api-Key` header in every request:
+
+```bash
+curl -s "https://api.tripvento.com/api/v1/destinations/" \
+  -H "X-Api-Key: YOUR_API_KEY"
+```
+
+<Warning>
+  Keep your API key secret. Do not expose it in client-side code or public repositories.
+</Warning>
