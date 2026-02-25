@@ -21,8 +21,6 @@ Documentation is different. It's structured, repetitive, and needs to stay in sy
 
 So this is the experiment: point Claude Code at the Next.js docs page, tell it to keep this Mintlify site in sync, and see how far it gets. Low stakes, high signal. If it works well, we learn something about where AI agents fit in a real workflow. If it doesn't, we've lost nothing — the real docs are untouched.
 
-The Mintlify site also runs on its own subdomain, which gives us DR90+ backlinks to tripvento.com for free. That's a nice side effect.
-
 ## What's in here
 
 ```
